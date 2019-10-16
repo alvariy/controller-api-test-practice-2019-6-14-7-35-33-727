@@ -121,7 +121,6 @@ public class TodoControllerTest {
         //then
         result.andExpect(status().isOk())
                 .andDo(print())
-//                .andExpect(jsonPath("$.id", is(1)))
         ;
     }
 
@@ -141,9 +140,58 @@ public class TodoControllerTest {
         //then
         result.andExpect(status().isNotFound())
                 .andDo(print())
-//                .andExpect(jsonPath("$.id", is(1)))
         ;
     }
 
+    @Test
+    void should_return_okay_if_able_to_patch() throws Exception {
+        List<Todo> todos =  new ArrayList<>();
+        Todo me = new Todo(1,"Laundry",true,1);
+        todos.add(me);
+        Optional<Todo> opt = Optional.of(me);
 
+        //given
+        when(todoRepository.findById(me.getId())).thenReturn(opt);
+        //when
+        ResultActions result = mvc.perform(patch("/todos/1")
+                .content(new ObjectMapper().writeValueAsString(me))
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        result.andExpect(status().isOk())
+                .andDo(print())
+        ;
+    }
+
+    @Test
+    void should_return_not_found_if_unable_to_patch() throws Exception {
+        List<Todo> todos =  new ArrayList<>();
+        Todo me = new Todo("Laundry",true);
+        todos.add(me);
+        Optional<Todo> opt = Optional.of(me);
+
+        //given
+        when(todoRepository.findById(me.getId())).thenReturn(opt);
+        //when
+        ResultActions result = mvc.perform(patch("/todos/1")
+                .content(new ObjectMapper().writeValueAsString(me))
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        result.andExpect(status().isNotFound())
+                .andDo(print())
+        ;
+    }
+
+    @Test
+    void should_return_bad_request_if_newTodo_is_null() throws Exception {
+        //given
+        when(todoController.updateTodo(1, null)).thenReturn(null);
+        //when
+        ResultActions result = mvc.perform(patch("/todos/1")
+                .content(new ObjectMapper().writeValueAsString(null))
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        result.andExpect(status().isBadRequest())
+                .andDo(print())
+        ;
+    }
 }
