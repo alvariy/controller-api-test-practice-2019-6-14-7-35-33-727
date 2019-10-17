@@ -34,8 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TodoController.class)
 @ActiveProfiles(profiles = "test")
 public class TodoControllerTest {
-    @Autowired
-    TodoController todoController;
+//    @Autowired
+//    TodoController todoController;
 
     @Autowired
     MockMvc mvc;
@@ -164,6 +164,8 @@ public class TodoControllerTest {
 
     @Test
     void should_return_not_found_if_unable_to_patch() throws Exception {
+
+
         List<Todo> todos =  new ArrayList<>();
         Todo me = new Todo("Laundry",true);
         todos.add(me);
@@ -183,8 +185,14 @@ public class TodoControllerTest {
 
     @Test
     void should_return_bad_request_if_newTodo_is_null() throws Exception {
+
+        List<Todo> todos =  new ArrayList<>();
+        Todo me = new Todo("Laundry",true);
+        todos.add(me);
+        Optional<Todo> opt = Optional.of(me);
+
         //given
-        when(todoController.updateTodo(1, null)).thenReturn(null);
+        when(todoRepository.findById(me.getId())).thenReturn(opt);
         //when
         ResultActions result = mvc.perform(patch("/todos/1")
                 .content(new ObjectMapper().writeValueAsString(null))
@@ -193,5 +201,6 @@ public class TodoControllerTest {
         result.andExpect(status().isBadRequest())
                 .andDo(print())
         ;
+
     }
 }
